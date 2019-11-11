@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 
 
 def get_subdataset(_S=1, Sess=1):
-    _file = 'train/Data_S%02d_Sess%02d.csv' % (_S, Sess)
+    _file = 'Data_S%02d_Sess%02d.csv' % (_S, Sess)
     _f = open(_file).readlines()
     channels = []
     for i, _rows in enumerate(_f):
@@ -28,12 +28,11 @@ def get_samples(_index, s_s_chs, sr, _size=1.3):
 
 def get_dataset():
     sr = 200
-    for subject in range(1, 3):  # 2
+    for subject in range(1, 2):  # 1
         for session in range(1, 2):  # 1
             s_s_chs = get_subdataset(subject, session)
             _index = [i + 1 for i, d in enumerate(s_s_chs[:, -1]) if d == 1]
             instances = get_samples(_index, s_s_chs, sr)
-            for f_instance in range(1, 3):  # len(instances) 2 instances
-                ch_fs_i = []
+            for f_instance in range(1, 2):  # len(instances) 1 instancess
                 instance = np.array(instances[f_instance, :, 1:-1]).transpose()
     return instance
