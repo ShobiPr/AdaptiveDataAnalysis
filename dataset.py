@@ -30,7 +30,8 @@ def get_dataset():
             s_s_chs = get_subdataset(subject, session)
             # first instance
             _index = 3937
-            return get_samples(_index, s_s_chs, sr)
+            data = get_samples(_index, s_s_chs, sr)
+            return data[:, 1:-1]
 
 
 
