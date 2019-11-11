@@ -22,7 +22,7 @@ def get_subdataset(_S=1, Sess=1):
 
 
 def get_samples(_index, s_s_chs, sr, _size=1.3):
-    return s_s_chs[_index-130:int(math.ceil(_index + (_size * sr)))+130][:]
+    return s_s_chs[_index:int(math.ceil(_index + (_size * sr)))][:]
 
 
 def get_dataset():
@@ -33,7 +33,8 @@ def get_dataset():
             # first instance
             _index = 3937
             data = get_samples(_index, s_s_chs, sr)
-            return data[:, 1:-1]
+            # channel O1
+            return data[:, 55]
 
 
 
