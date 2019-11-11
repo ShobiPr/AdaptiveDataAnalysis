@@ -16,7 +16,7 @@ def get_subdataset(_S=1, Sess=1):
             channels.append(eval(_rows))
         else:
             _headers = _rows
-        if i > 4200:
+        if i > 4500:
             return np.array(channels)
     return np.array(channels)
 
@@ -25,7 +25,7 @@ def get_samples(_index, s_s_chs, sr, _size=1.3):
     return s_s_chs[_index:int(math.ceil(_index + (_size * sr)))][:]
 
 
-def get_dataset():
+def get_feedback_signal():
     sr = 200
     for subject in range(1, 2):  # 1
         for session in range(1, 2):  # 1
@@ -37,4 +37,25 @@ def get_dataset():
             return data[:, 55]
 
 
+def get_feedback_signal():
+    sr = 200
+    for subject in range(1, 2):  # 1
+        for session in range(1, 2):  # 1
+            s_s_chs = get_subdataset(subject, session)
+            # first instance
+            _index = 3937
+            data = get_samples(_index, s_s_chs, sr)
+            # channel O1
+            return data[:, 55]
 
+
+def get_resting_signal():
+    sr = 200
+    for subject in range(1, 2):  # 1
+        for session in range(1, 2):  # 1
+            s_s_chs = get_subdataset(subject, session)
+            # first instance
+            _index = 3937 - 200*2
+            data = get_samples(_index, s_s_chs, sr)
+            # channel O1
+            return data[:, 55]

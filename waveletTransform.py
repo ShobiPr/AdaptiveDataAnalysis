@@ -7,23 +7,37 @@ from dataset import get_dataset
 
 
 
-def waveletTransform(instance):
+def waveletTransform(signal):
+    labels = ['cA4', 'cd4', 'cd3', 'cd2', 'cd1']
+
+    plt.subplot(521)
+    plt.title('Decomposition of EEG signal')
+    coefficients = pywt.wavedec(signal, 'sym7')
+    fig, axs = plt.subplots(nrows=len(coefficients))
+
     features = []
-    fig, axs = plt.subplots(2)
-    fig.suptitle('Decomposition of EEG signal')
-    coefficients = pywt.wavedec(instance, 'sym7')
+
     for i in range(len(coefficients)):
-        axs[i].plot(coefficients)
+        axs[i].plot(coefficients[i])
+        axs[i].set_ylabel(labels[i])
 
-    return 0
-
-
-
-def waveletFeatures():
-    return 0
-
+        features.append(instantaneous_energy(coefficients[i]))
+        features.append(teager_energy(coefficients[i]))
+    plt.show()
+    return features
 
 
+def teager_energy(data):
+    sum_values = sum(abs(data[x] ** 2) if x == 0
+                     else abs(data[x] ** 2 - data[x - 1] * data[x + 1])
+                     for x in range(0, len(data) - 1))
+    return np.log10((1 / float(len(data))) * sum_values)
 
-data = get_dataset()
-# waveletTransform(data)
+
+def instantaneous_energy(data):
+    return np.log10((1 / float(len(data))) * sum(i ** 2 for i in data))
+
+
+
+signal = get_dataset()
+print(waveletTransform(signal))

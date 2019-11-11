@@ -1,38 +1,60 @@
 import numpy as np
-from scipy import signal
 import matplotlib.pyplot as plt
-from tftb.generators import fmlin
-from tftb.processing import ShortTimeFourierTransform
+from dataset import get_subdataset, get_samples
+import math
 
 
-timep = 3000  # Number of seconds
-nsamp = 1000  # Number of samples,  t# he length of the windowing segments
-t = np.linspace(0, timep, nsamp)
-samprate = nsamp/timep  # Sampling rate
 
-s1 = np.sin(2 * np.pi * 5 * t)
-s2 = np.sin(2 * np.pi * 12 * t)
-s3 = np.sin(2 * np.pi * 15 * t)
-s = s1 + s2 + s3
+def stft(signal, window):
+    # Number of sample points
+    N = len(signal)
+    # sample spacing
+    T = 1.0 / 200
+    y = signal
 
-s_offset = s + 2  # with offset
-s_white_noise = s + np.random.random(size=nsamp)  # with white noise, complex
-s_linear = np.real(s*fmlin(1000, 0.05, 0.3, 50)[0])
-s_offset_noise = (s + np.random.random(size=nsamp)) + 2
-
-
-def stft(signal, t=t, nsamp=nsamp):
-    fig, (ax1, ax2) = plt.subplots(nrows=2)
-    ax1.plot(t, s)
-    ax1.set_ylabel('Signal')
     # Pxx : the periodogram, freqs: frequency vector, bins: the centers of the time bins
-    Pxx, freqs, bins, im = ax2.specgram(s, NFFT=nsamp, Fs=samprate, noverlap=900)
-    ax2.set_ylabel('Hz')
+    Pxx, freqs, bins, im = plt.specgram(signal, NFFT=N, Fs=200, noverlap=window)
+    plt.xlabel('Time [s]')
+    plt.ylabel('Frequency [Hz]')
     plt.show()
 
+def get_samples_stft(_index, s_s_chs, sr, _size=1.3):
+    return s_s_chs[_index-200*3:int(math.ceil(_index + (_size * sr))) + 200][:]
 
-stft(s)
-stft(s_offset)
-stft(s_white_noise)
-stft(s_linear)
-stft(s_offset_noise)
+
+def get_dataset():
+    sr = 200
+    for subject in range(1, 2):  # 1
+        for session in range(1, 2):  # 1
+            s_s_chs = get_subdataset(subject, session)
+            # first instance
+            _index = 3937
+            data = get_samples_stft(_index, s_s_chs, sr)
+            # channel O1
+            return data[:, 55]
+
+data_signal = get_dataset()
+
+
+
+from scipy import signal
+
+
+fs = 200 #Hz
+N = len(data_signal)
+print(N)
+amp = 2 * np.sqrt(2)
+time = np.arange(N) / float(fs)
+
+# 50, 40
+
+f, t, Zxx = signal.stft(data_signal, fs, nperseg=1000, window='hamming', noverlap=950)
+plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=amp,)
+plt.vlines(3, 0, 100, linestyle="dashed", colors = 'r')
+plt.title('STFT Magnitude')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [s]')
+axes = plt.gca()
+
+axes.set_ylim([0,100])
+plt.show()
