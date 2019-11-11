@@ -16,6 +16,8 @@ def get_subdataset(_S=1, Sess=1):
             channels.append(eval(_rows))
         else:
             _headers = _rows
+        if i > 4200:
+            return np.array(channels)
     return np.array(channels)
 
 
