@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
 from pyhht import EMD
-import numpy as np
 import matplotlib.pyplot as plt
-import math
+from hilbert_transform import hilbert_transform
 from dataset import get_dataset
 
 import warnings
@@ -38,6 +37,16 @@ def plot(signal, imfs):
     plt.show()
 
 signal = get_dataset()
+
+# Empirical Mode Decomposition
 imfs = get_imfs(signal)
 plot(signal, imfs)
+
+# Hilbet Transform
+sr = 200
+
+# hilbert_transform(imfs, sr)
+
+
+
 
