@@ -22,7 +22,7 @@ def get_subdataset(_S=1, Sess=1):
 def get_samples(_index, s_s_chs, sr, _size=1.3):
     instances = []
     for _ind in _index:
-        instances.append(s_s_chs[_ind:int(math.ceil(_ind + (_size * sr)))][:])
+        instances.append(s_s_chs[_ind-130:int(math.ceil(_ind + (_size * sr)))+130][:])
     return np.array(instances)
 
 
@@ -36,3 +36,6 @@ def get_dataset():
             for f_instance in range(1, 2):  # len(instances) 1 instancess
                 instance = np.array(instances[f_instance, :, 1:-1]).transpose()
     return instance
+
+
+ins = get_dataset()
