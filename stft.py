@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from dataset import get_subdataset, get_samples
 import math
 
+from scipy import signal
+
 
 
 def stft(signal, window):
@@ -18,26 +20,32 @@ def stft(signal, window):
     plt.ylabel('Frequency [Hz]')
     plt.show()
 
-def get_samples_stft(_index, s_s_chs, sr, _size=1.3):
-    return s_s_chs[_index-200*3:int(math.ceil(_index + (_size * sr))) + 200][:]
+
+
+def get_instances_P300(_index, dataset, sampling_rate, _size=1.3):
+    instances = []
+    for i in _index:
+        instances.append(dataset[i:int(math.ceil(i + (_size * sampling_rate)))][:])
+    return np.array(instances)
+
 
 
 def get_dataset():
     sr = 200
+    data = []
     for subject in range(1, 2):  # 1
         for session in range(1, 2):  # 1
             s_s_chs = get_subdataset(subject, session)
             # first instance
-            _index = 3937
-            data = get_samples_stft(_index, s_s_chs, sr)
-            # channel O1
-            return data[:, 55]
+            subject_dataset = get_subdataset(subject, session)
+            return subject_dataset[3937-(200*2):5431+(200*2), 55]
+
+
 
 data_signal = get_dataset()
 
 
 
-from scipy import signal
 
 
 fs = 200 #Hz
@@ -48,9 +56,14 @@ time = np.arange(N) / float(fs)
 
 # 50, 40
 
-f, t, Zxx = signal.stft(data_signal, fs, nperseg=1000, window='hamming', noverlap=950)
-plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=amp,)
-plt.vlines(3, 0, 100, linestyle="dashed", colors = 'r')
+f, t, Zxx = signal.stft(data_signal, fs, nperseg=2000, window='hamming', noverlap=1800)
+
+
+plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=amp)
+plt.vlines(2, 0, 100, linestyle="dashed", colors ='r')
+plt.vlines(9.47, 0, 100, linestyle="dashed", colors ='r')
+plt.vlines(2+1.3, 0, 100, linestyle="dashed", colors ='r')
+plt.vlines(9.47+1.3, 0, 100, linestyle="dashed", colors ='r')
 plt.title('STFT Magnitude')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [s]')
