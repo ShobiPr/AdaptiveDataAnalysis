@@ -2,8 +2,10 @@
 from __future__ import division
 import numpy as np
 import math
+from scipy.signal import butter, lfilter, freqz
+import matplotlib.pyplot as plt
+from scipy import signal
 import warnings
-
 warnings.filterwarnings("ignore")
 
 
@@ -38,3 +40,29 @@ def get_dataset():
             data.append(all_channels[:,55])
             # channel O1
     return data
+
+
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    y = signal.filtfilt(b, a, data)
+    return y
+
+
+def butter_highpass_filter(data, cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = signal.butter(order, normal_cutoff, btype='high', analog=False)
+    y = signal.filtfilt(b, a, data)
+    return y
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    y = signal.filtfilt(b, a, data)
+    return y
