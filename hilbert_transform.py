@@ -4,20 +4,21 @@ from scipy.signal import hilbert
 
 
 def hilbert_transform(IMFs, sr):
-
+    instantaneous_freq = []
     for s, imfs in enumerate(IMFs):
-        nIMFs = 5
+        nIMFs = 6
 
         for i, imf in enumerate(imfs):
-            if 1 <= i <= nIMFs:
+            if i < nIMFs:
                 hs = hilbert(imf)  # Hilbert Transform
                 ampl_s = np.abs(hs)  # Calculate amplitude
                 omega_s = np.unwrap(np.angle(hs))  # Unwrap phase
                 f_inst_s = np.diff(omega_s) / (2 * np.pi / sr)  # Calculate instantaneous frequency
-                t = np.linspace(0, 1.3, 260)
+                instantaneous_freq.append(f_inst_s)
+                t = np.linspace(0, 1.3*2, 260*2)
 
-                plt.subplot(nIMFs, 1, i)
-                if i == 1:
+                plt.subplot(nIMFs, 1, i+1)
+                if i == 0:
                     plt.title('Comparing Instantaneous Frequencies')
                 plt.plot(t[1:], f_inst_s, label="Subject %i" % (s + 1), linewidth=0.75)
                 plt.xticks([])
@@ -26,7 +27,29 @@ def hilbert_transform(IMFs, sr):
                     plt.ylabel('Ins. Freq. [Hz]')
 
     plt.xlabel('Time [s]')
-    plt.legend(loc='lower right')
+    # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.show()
 
-# label="Subject %i" % (i + 1)
+def get_intantaneous_freq(IMFs, sr):
+    instantaneous_freq = []
+    for s, imfs in enumerate(IMFs):
+        insfreq = []
+        for i, imf in enumerate(imfs):
+            if 2 <= i <= 3:
+                hs = hilbert(imf)  # Hilbert Transform
+                ampl_s = np.abs(hs)  # Calculate amplitude
+                omega_s = np.unwrap(np.angle(hs))  # Unwrap phase
+                f_inst_s = np.diff(omega_s) / (2 * np.pi / sr)  # Calculate instantaneous frequency
+                insfreq += [f_inst_s]
+        instantaneous_freq.append(insfreq)
+    return instantaneous_freq
+
+def get_marginal_freq(instFreq):
+    marginal_fre = []
+    for i, sub in enumerate(instFreq):
+        freq = []
+        for j, fr in enumerate(sub):
+            s = sum(fr)
+            freq += [s]
+        marginal_fre.append(freq)
+    return marginal_fre

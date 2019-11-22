@@ -1,29 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft
-from dataset import get_dataset
-
-
-def fast_fourier_transform(signal1, signal2, signal3):
-    # Number of sample points
-    N = 260
-    # sample spacing
-    T = 1.0 / 200
-    y1 = signal1
-    y2 = signal2
-    y3 = signal3
-    yf1 = fft(y1)
-    yf2 = fft(y2)
-    yf3 = fft(y3)
-    xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
-    plt.plot(xf, 2.0/N * np.abs(yf1[0:N//2]), label='Subject 1')
-    plt.plot(xf, 2.0 / N * np.abs(yf2[0:N // 2]), label='Subject 2')
-    plt.plot(xf, 2.0 / N * np.abs(yf3[0:N // 2]), label='Subject 3')
-    plt.xlabel('Frequency [Hz]')
-    plt.ylabel('Amplitude [mV]')
-    plt.legend(loc='upper right')
-    plt.title('FFT')
-    plt.show()
+from scipy import signal
+from dataset import get_dataset_P300
+from scipy.signal import iirfilter, lfilter
+from scipy.signal import butter
 
 """
 data = get_dataset()
@@ -42,11 +23,39 @@ signal_filtered3 = butter_lowpass_filter(data_signal3, 50.0, 200)
 
 fast_fourier_transform(signal_filtered1, signal_filtered2, signal_filtered3)
 """
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=4):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    y = signal.filtfilt(b, a, data)
+    return y
+
+def notch_filter(s, sr, f0=50, Q=10.0):
+    b, a = signal.iirnotch(f0, Q, sr)
+    return signal.filtfilt(b, a, s)
 
 
+def fast_fourier_transform(data, sr, sampling):
+    # Number of sample points
+    N = sampling
+    # sample spacing
+    T = 1.0 / sr
+    for i, signal in enumerate(data):
+        n = notch_filter(signal, sr)
+        y = butter_bandpass_filter(n, 0.5, 70.0, sr, order=4)
+        yf = fft(y)
+        xf = np.linspace(0.0, 1.0 / (2.0 * T), N // 2)
+        plt.plot(xf, 2.0 / N * np.abs(yf[0:N // 2]), label='subject {0}'.format(i+1))
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Amplitude [mV]')
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.grid()
+    plt.title('FFT on filtered P300')
+    plt.show()
 
-signal = get_dataset()
-fast_fourier_transform(signal)
 
-print("MEAN: ", np.mean(signal))
-"""
+data = get_dataset_P300()
+sr = 200
+sampling = 260
+fast_fourier_transform(data, sr, sampling)

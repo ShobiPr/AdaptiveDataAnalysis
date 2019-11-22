@@ -2,18 +2,10 @@
 from __future__ import division
 from pyhht import EMD
 import matplotlib.pyplot as plt
-from hilbert_transform import hilbert_transform
-from dataset import get_dataset
-import numpy as np
-from fft import fast_fourier_transform
+from hilbert_transform import hilbert_transform, get_intantaneous_freq, get_marginal_freq
+from dataset import get_dataset_P300
 
-
-from scipy.signal import butter, lfilter, freqz
-import matplotlib.pyplot as plt
-from scipy import signal
-from dataset import get_dataset
 import warnings
-
 warnings.filterwarnings("ignore")
 
 def get_imfs(signal):
@@ -48,7 +40,7 @@ def plot(signal, imfs):
 
 
 # Empirical Mode Decomposition
-data = get_dataset()
+data = get_dataset_P300()
 
 IMFs = []
 HHT = []
@@ -56,5 +48,9 @@ sr = 200
 for i, signal in enumerate(data):
     IMFs.append(get_imfs(signal))
 
-# hilbert_transform(IMFs, sr)
 
+hilbert_transform(IMFs, sr)
+
+
+# insFreq = get_intantaneous_freq(IMFs, sr)
+# margianl_frequenci = get_marginal_freq(insFreq)
